@@ -39,4 +39,10 @@ app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
 
 print("Bot is running...")
-app.run_polling()
+import asyncio
+
+async def main():
+    await app.run_polling()
+
+if __name__ == "__main__":
+    asyncio.run(main())
