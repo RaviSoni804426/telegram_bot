@@ -31,7 +31,7 @@ Welcome to "PW Institute of Innovation (PWIOI)" 💻
 https://forms.gle/GLjYLhY4yzaDbW3s6
 
 📢 Updates:
-https://t.me/+eldsFyM3WjIyMWI9
+Life At PWIOI- https://www.pwioi.club
 
 💬 Want referral? DM now  
 
