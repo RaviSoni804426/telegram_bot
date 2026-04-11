@@ -50,6 +50,11 @@ async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == "__main__":
     logger.info("Starting the bot...")
     
+    # Render uses Python 3.14.3 by default where event loop isn't auto-created. 
+    # This manually patches it so `python-telegram-bot` doesn't crash!
+    import asyncio
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    
     app = ApplicationBuilder().token(TOKEN).build()
     
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
