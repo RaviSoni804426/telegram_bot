@@ -50,15 +50,9 @@ async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == "__main__":
     logger.info("Starting the bot...")
     
-    # Render uses Python 3.14.3 by default where event loop isn't auto-created. 
-    # This manually patches it so `python-telegram-bot` doesn't crash!
     import asyncio
     asyncio.set_event_loop(asyncio.new_event_loop())
 
-    # --- RENDER WEB SERVICE FIX ---
-    # Render requires web services to bind to a PORT, otherwise it thinks the deploy failed
-    # and keeps booting up duplicate instances (causing your 409 Conflict error).
-    # We run a tiny dummy web-server in the background to keep Render happy.
     import threading
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -83,4 +77,4 @@ if __name__ == "__main__":
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
     
     logger.info("Bot is successfully polling! (Listening for events...)")
-    app.run_polling()
+    app.run_polling()
