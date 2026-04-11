@@ -1,9 +1,18 @@
+import os
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
-import os
+# Enable logging so you can see errors in your deployment dashboard (Heroku/Render) logs!
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
-TOKEN = "8439259468:AAGDZBkMlnVc0skX9LI71Ts6TjzxeV_16ns"  
+# 1. BEST PRACTICE: Fetch token from Environment Variables in deployment.
+# It falls back to your string for local testing if the var is missing.
+TOKEN = os.environ.get("TELEGRAM_TOKEN", "8439259468:AAGDZBkMlnVc0skX9LI71Ts6TjzxeV_16ns")
 
 WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
 If you're serious about Tech, AI & Real Skills — read this.
@@ -32,17 +41,18 @@ Just start. 🚀
 async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message and update.message.new_chat_members:
         for user in update.message.new_chat_members:
-            await update.message.reply_text(WELCOME_MSG)
-
-app = ApplicationBuilder().token(TOKEN).build()
-
-app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
-
-print("Bot is running...")
-import asyncio
-
-async def main():
-    await app.run_polling()
+            logger.info(f"New user joined: {user.full_name}")
+            try:
+                await update.message.reply_text(WELCOME_MSG)
+            except Exception as e:
+                logger.error(f"Failed to send welcome message: {e}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logger.info("Starting the bot...")
+    
+    app = ApplicationBuilder().token(TOKEN).build()
+    
+    app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
+    
+    logger.info("Bot is successfully polling! (Listening for events...)")
+    app.run_polling()
