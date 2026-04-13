@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 TOKEN = os.environ.get("TELEGRAM_TOKEN", "8439259468:AAGDZBkMlnVc0skX9LI71Ts6TjzxeV_16ns")
 
 WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
+
 If you're serious about Tech, AI & Real Skills — read this.
 
 Welcome to "PW Institute of Innovation (PWIOI)" 💻
@@ -32,6 +33,8 @@ https://forms.gle/GLjYLhY4yzaDbW3s6
 
 📢 Updates:
 Life At PWIOI- https://www.pwioi.club
+
+🤝 Still confused? Talk to seniors:- https://t.me/+AfsPpCuMuBMzZDc1
 
 💬 Want referral? DM now(@Ravi_Soni123)  or just use coupon code-S0026 for extra discount.
 
