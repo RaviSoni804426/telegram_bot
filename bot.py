@@ -95,6 +95,8 @@ if __name__ == "__main__":
     asyncio.set_event_loop(asyncio.new_event_loop())
 
     import threading
+    import time
+    import urllib.request
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
     class DummyHandler(BaseHTTPRequestHandler):
@@ -109,8 +111,25 @@ if __name__ == "__main__":
         server = HTTPServer(("0.0.0.0", port), DummyHandler)
         server.serve_forever()
 
+    def keep_alive():
+        # Render automatically provides RENDER_EXTERNAL_URL, but we fallback to your app's explicit URL
+        app_url = os.environ.get("RENDER_EXTERNAL_URL", "https://telegram-bot-77sm.onrender.com")
+        while True:
+            try:
+                # Wait for 3 minutes before hitting the URL
+                time.sleep(3 * 60)
+                urllib.request.urlopen(app_url)
+                logger.info(f"Cronjob: Successfully self-pinged {app_url} to keep app awake.")
+            except Exception as e:
+                logger.warning(f"Cronjob failed to ping: {e}")
+
+    # Start the dummy web server
     threading.Thread(target=run_dummy_server, daemon=True).start()
     logger.info("Dummy web server started for Render's health check.")
+    
+    # Start the self-pinging keep-alive cronjob
+    threading.Thread(target=keep_alive, daemon=True).start()
+    logger.info("Internal Keep-Alive Cronjob started (Pinging every 3 mins).")
     # --------------------------------
     
     app = ApplicationBuilder().token(TOKEN).build()
