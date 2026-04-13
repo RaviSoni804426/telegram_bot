@@ -76,11 +76,11 @@ async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 # FALLBACK: Send a message in the group mentioning the user
                 fallback_text = (
-                    f"Welcome to the group, [{user.first_name}](tg://user?id={user.id})! 🎉\n\n"
+                    f"Welcome to the group, <a href='tg://user?id={user.id}'>{user.first_name}</a>! 🎉\n\n"
                     f"I tried to send you a welcome DM, but I am not allowed to initiate messages. "
                     f"Please start a chat with me here: @{bot_username} to get your personalized guide!"
                 )
-                await update.message.reply_text(text=fallback_text, parse_mode='Markdown')
+                await update.message.reply_text(text=fallback_text, parse_mode='HTML')
 
             # Also optionally send the main group welcome message
             try:
@@ -118,7 +118,9 @@ if __name__ == "__main__":
             try:
                 # Wait for 3 minutes before hitting the URL
                 time.sleep(3 * 60)
-                urllib.request.urlopen(app_url)
+                # Adding User-Agent so Render doesn't block the request as a bot
+                req = urllib.request.Request(app_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+                urllib.request.urlopen(req)
                 logger.info(f"Cronjob: Successfully self-pinged {app_url} to keep app awake.")
             except Exception as e:
                 logger.warning(f"Cronjob failed to ping: {e}")
