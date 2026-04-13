@@ -35,9 +35,8 @@ https://forms.gle/GLjYLhY4yzaDbW3s6
  PWIOI- https://www.pwioi.com
  Life At PWIOI- https://www.pwioi.club
 
-🤝 Still confused? Talk to seniors:- https://t.me/+AfsPpCuMuBMzZDc1
 
-💬 Want referral? DM now(@Ravi_Soni123)  or just use coupon code-S0026 for extra discount.
+💬 Want referral for smooth journey or any doubts? DM now(@Ravi_Soni123)  or just use coupon code-S0026 for extra discount.
 
 Just start. 🚀
 """
