@@ -41,14 +41,52 @@ https://forms.gle/GLjYLhY4yzaDbW3s6
 Just start. 🚀
 """
 
+# Customizable DM message content
+PERSONAL_DM_MSG = """Hey {name}! 👋 
+
+I saw you just joined the PWIOI group! I am your personal Mentor, Ravi.
+If you want a referral for a smooth journey, have any doubts, or want to use my extra discount coupon (S0026), please send a direct message to my personal ID here: 
+👉 @Ravi_Soni123
+
+I'll reply to you directly from there!"""
+
 async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message and update.message.new_chat_members:
+        # Get the bot's username dynamically to create a direct link if needed
+        bot_username = context.bot.username
+
         for user in update.message.new_chat_members:
+            # Skip if the new member is a bot
+            if user.is_bot:
+                continue
+
             logger.info(f"New user joined: {user.full_name}")
+            
+            # Format the personal message with the user's name
+            dm_text = PERSONAL_DM_MSG.format(name=user.first_name)
+
+            # TRY TO SEND DIRECT MESSAGE (DM)
+            try:
+                await context.bot.send_message(chat_id=user.id, text=dm_text)
+                logger.info(f"Successfully sent DM to {user.full_name}")
+            
+            except Exception as e:
+                # If the bot is not allowed to DM the user, Telegram throws a Forbidden error.
+                logger.warning(f"Could not DM {user.full_name}. Reason: {e}")
+                
+                # FALLBACK: Send a message in the group mentioning the user
+                fallback_text = (
+                    f"Welcome to the group, [{user.first_name}](tg://user?id={user.id})! 🎉\n\n"
+                    f"I tried to send you a welcome DM, but I am not allowed to initiate messages. "
+                    f"Please start a chat with me here: @{bot_username} to get your personalized guide!"
+                )
+                await update.message.reply_text(text=fallback_text, parse_mode='Markdown')
+
+            # Also optionally send the main group welcome message
             try:
                 await update.message.reply_text(WELCOME_MSG)
             except Exception as e:
-                logger.error(f"Failed to send welcome message: {e}")
+                logger.error(f"Failed to send main welcome message: {e}")
 
 if __name__ == "__main__":
     logger.info("Starting the bot...")
