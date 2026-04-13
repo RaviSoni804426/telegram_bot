@@ -60,6 +60,7 @@ class BotConfig:
     webhook_url: str | None
     port: int
     retry_delay_seconds: int
+    use_webhook: bool
 
 
 def load_config() -> BotConfig:
@@ -74,13 +75,33 @@ def load_config() -> BotConfig:
             "Missing bot token. Set TELEGRAM_TOKEN, BOT_TOKEN, or TOKEN before starting the bot."
         )
 
-    webhook_url = (
-        os.environ.get("WEBHOOK_URL")
-        or os.environ.get("RENDER_EXTERNAL_URL")
-        or ""
-    ).strip() or None
-    if webhook_url:
-        webhook_url = webhook_url.rstrip("/")
+    bot_mode = (os.environ.get("BOT_MODE") or "").strip().lower()
+    if bot_mode and bot_mode not in {"polling", "webhook"}:
+        raise RuntimeError("Invalid BOT_MODE. Use 'polling' or 'webhook'.")
+
+    explicit_webhook_url = (os.environ.get("WEBHOOK_URL") or "").strip() or None
+    render_webhook_url = (os.environ.get("RENDER_EXTERNAL_URL") or "").strip() or None
+
+    if explicit_webhook_url:
+        explicit_webhook_url = explicit_webhook_url.rstrip("/")
+    if render_webhook_url:
+        render_webhook_url = render_webhook_url.rstrip("/")
+
+    use_webhook = False
+    webhook_url = None
+
+    if bot_mode == "webhook":
+        webhook_url = explicit_webhook_url or render_webhook_url
+        if not webhook_url:
+            raise RuntimeError("BOT_MODE=webhook requires WEBHOOK_URL or RENDER_EXTERNAL_URL.")
+        use_webhook = True
+    elif bot_mode == "polling":
+        use_webhook = False
+    elif render_webhook_url:
+        webhook_url = render_webhook_url
+        use_webhook = True
+    elif explicit_webhook_url:
+        logger.info("WEBHOOK_URL is set, but BOT_MODE is not 'webhook'. Starting in polling mode.")
 
     port = int(os.environ.get("PORT", "10000"))
     retry_delay_seconds = max(5, int(os.environ.get("BOT_RETRY_DELAY_SECONDS", "15")))
@@ -90,6 +111,7 @@ def load_config() -> BotConfig:
         webhook_url=webhook_url,
         port=port,
         retry_delay_seconds=retry_delay_seconds,
+        use_webhook=use_webhook,
     )
 
 
@@ -163,7 +185,7 @@ def build_application(config: BotConfig) -> Application:
 
 
 def run_application(application: Application, config: BotConfig) -> None:
-    if config.webhook_url:
+    if config.use_webhook and config.webhook_url:
         webhook_path = config.token
         logger.info("Starting bot in webhook mode on port %s", config.port)
         application.run_webhook(
