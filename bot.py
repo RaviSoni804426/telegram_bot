@@ -33,7 +33,7 @@ https://forms.gle/GLjYLhY4yzaDbW3s6
 📢 Updates:
 Life At PWIOI- https://www.pwioi.club
 
-💬 Want referral? DM now  
+💬 Want referral? DM now(@Ravi_Soni123)  or just use coupon code-S0026 for extra discount.
 
 Just start. 🚀
 """
