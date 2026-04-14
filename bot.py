@@ -119,6 +119,10 @@ def load_config() -> BotConfig:
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.message:
         return
+        
+    # Only reply to /start if it's sent in a private DM (not in the group!)
+    if update.message.chat.type != "private":
+        return
 
     first_name = update.effective_user.first_name if update.effective_user else "there"
     await update.message.reply_text(PERSONAL_DM_TEMPLATE.format(name=first_name))
