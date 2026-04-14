@@ -4,10 +4,9 @@ import logging
 import os
 import time
 from dataclasses import dataclass
-from html import escape
 
 from dotenv import load_dotenv
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.error import Forbidden, NetworkError, TelegramError
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
@@ -19,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
+GROUP_WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
 
 If you're serious about Tech, AI & Real Skills — read this.
 
@@ -40,8 +39,7 @@ https://forms.gle/GLjYLhY4yzaDbW3s6
 PWIOI - https://www.pwioi.com
 Life At PWIOI- https://www.pwioi.club
 
-
-💬 Want referral or talk to me? DM now(@Ravi_Soni123)  or just use coupon code-S0026 for extra discount.
+Tap the button below to open a private chat with the bot and get the personal message there.
 
 Just start. 🚀
 """
@@ -119,7 +117,7 @@ def load_config() -> BotConfig:
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.message:
         return
-        
+
     # Only reply to /start if it's sent in a private DM (not in the group!)
     if update.message.chat.type != "private":
         return
@@ -147,37 +145,27 @@ async def welcome_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE
             logger.info("Sent DM to %s (%s)", member.full_name, member.id)
         except Forbidden:
             logger.info("Telegram blocked the DM to %s (%s)", member.full_name, member.id)
-            await message.reply_text(
-                text=build_dm_fallback_text(member, bot_username),
-                parse_mode="HTML",
-                disable_web_page_preview=True,
-            )
         except TelegramError as exc:
             logger.warning("Failed to send DM to %s (%s): %s", member.full_name, member.id, exc)
-            await message.reply_text(
-                text=build_dm_fallback_text(member, bot_username),
-                parse_mode="HTML",
-                disable_web_page_preview=True,
-            )
 
-    await message.reply_text(WELCOME_MSG, disable_web_page_preview=True)
+    await message.reply_text(
+        GROUP_WELCOME_MSG,
+        disable_web_page_preview=True,
+        reply_markup=build_private_dm_keyboard(bot_username),
+    )
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.error("Unhandled exception while processing an update", exc_info=context.error)
 
 
-def build_dm_fallback_text(member, bot_username: str | None) -> str:
-    safe_name = escape(member.first_name or member.full_name or "there")
-    start_hint = (
-        f"Please start a chat with me here: @{escape(bot_username)} so I can message you directly."
-        if bot_username
-        else "Please open my profile and press Start so I can message you directly."
-    )
-    return (
-        f"Welcome to the group, <a href='tg://user?id={member.id}'>{safe_name}</a>!\n\n"
-        "I tried to send you a welcome DM, but Telegram does not allow bots to message a user before they press Start.\n"
-        f"{start_hint}"
+def build_private_dm_keyboard(bot_username: str | None) -> InlineKeyboardMarkup | None:
+    if not bot_username:
+        return None
+
+    dm_link = f"https://t.me/{bot_username}?start=welcome"
+    return InlineKeyboardMarkup(
+        [[InlineKeyboardButton("Open Private Chat", url=dm_link)]]
     )
 
 
