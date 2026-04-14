@@ -19,30 +19,31 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-WELCOME_MSG = """Stop scrolling. This could change your path.
+WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
 
-If you're serious about Tech, AI and real skills, read this.
+If you're serious about Tech, AI & Real Skills — read this.
 
-Welcome to PW Institute of Innovation (PWIOI)
+Welcome to "PW Institute of Innovation (PWIOI)" 💻
 
-Choose your path:
-4-Year Computer Science Program
-2-Year Management Program
+🎯 Choose your path:
+👨‍💻 4-Year Computer Science Program  
+📊 2-Year Management Program  
 
-Learn by building, not just theory
-Work with real mentors
-Real opportunities
+⚡️ Learn by building — not just theory  
+🤝 Work with real mentors  
+🚀 Real opportunities  
 
-Apply here:
+👉 Apply here:
 https://forms.gle/GLjYLhY4yzaDbW3s6
 
-Updates:
+📢 Updates:
 PWIOI - https://www.pwioi.com
-Life At PWIOI - https://www.pwioi.club
+Life At PWIOI- https://www.pwioi.club
 
-Want a referral or have doubts? DM @Ravi_Soni123 or use coupon code S0026 for an extra discount.
 
-Just start.
+💬 Want referral or talk to me? DM now(@Ravi_Soni123)  or just use coupon code-S0026 for extra discount.
+
+Just start. 🚀
 """
 
 PERSONAL_DM_TEMPLATE = """Hey {name}!
