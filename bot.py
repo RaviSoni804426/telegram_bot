@@ -39,7 +39,7 @@ https://forms.gle/GLjYLhY4yzaDbW3s6
 PWIOI - https://www.pwioi.com
 Life At PWIOI- https://www.pwioi.club
 
-Tap the button below to open a private chat with the bot and get the personal message there.
+Tap the button below to open a chat with mentors/seniors and get the personal message there.
 
 Just start. 🚀
 """
