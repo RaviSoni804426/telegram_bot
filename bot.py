@@ -48,7 +48,7 @@ PERSONAL_DM_TEMPLATE = """Hey {name}!
 
 I saw you just joined the PWIOI group. I am your personal mentor, Ravi.
 If you want a referral for a smooth journey, have any doubts, or want to use my extra discount coupon (S0026), please send a direct message to my personal ID here:
-@Ravi_Soni123
+@Ravi_Soni123, or whatsapp me at 9608710567
 
 I'll reply to you directly from there."""
 
