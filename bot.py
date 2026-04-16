@@ -129,7 +129,7 @@ async def welcome_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE
     )
     
     # Schedule deletion after 5 minutes (300 seconds)
-    asyncio.create_task(
+    task = asyncio.create_task(
         delete_message_later(
             bot=context.bot,
             chat_id=sent_msg.chat_id,
@@ -137,8 +137,12 @@ async def welcome_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE
             delay_seconds=300
         )
     )
+    # Prevent task from being garbage collected prematurely
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
 
 
+_background_tasks = set()
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.error("Unhandled exception while processing an update", exc_info=context.error)
 
