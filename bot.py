@@ -6,9 +6,10 @@ import time
 from dataclasses import dataclass
 
 from dotenv import load_dotenv
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.error import Forbidden, NetworkError, TelegramError
-from telegram.ext import Application, ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import Update
+from telegram.constants import ParseMode
+from telegram.error import NetworkError
+from telegram.ext import Application, ApplicationBuilder, ContextTypes, MessageHandler, filters
 
 load_dotenv()
 
@@ -18,41 +19,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-GROUP_WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
+GROUP_WELCOME_MSG = """*Welcome to PW Institute of Innovation*
 
-If you're serious about Tech, AI & Real Skills — read this.
+Traditional college ka time gaya. *PW IOI* is new-age learning focused on career, skills, Tech, AI & MBA-level Business/Leadership, not just degrees.
+If you’re into *AI, Tech or Management*, let’s build your future together.
 
-Welcome to "PW Institute of Innovation (PWIOI)" 💻
+*Choose Your Track:*
+1️⃣ *4 years B.Tech in CS & AI* : Computer Science, AI, and Coding.
+2️⃣ *MBA*: Business, Strategy, Leadership for real world. 
 
-🎯 Choose your path:
-👨‍💻 4-Year Computer Science Program  
-📊 2-Year Management Program  
+*Why PW IOI?*
+🔥 Practical Learning: No boring theory, only real-world projects.
+🔥 Expert Mentors: Industry leaders se seekhne ka mauka.
+🔥 Early Start: Internship opportunities from 1st year onwards.
 
-⚡️ Learn by building — not just theory  
-🤝 Work with real mentors  
-🚀 Real opportunities  
+👇 *Register for Priority Callback:*
+[https://forms.gle/GLjYLhY4yzaDbW3s6](https://forms.gle/GLjYLhY4yzaDbW3s6)
 
-👉 Apply here:
-https://forms.gle/GLjYLhY4yzaDbW3s6
-
-📢 Updates:
-PWIOI - https://www.pwioi.com
-Life At PWIOI- https://www.pwioi.club
-
-Tap the button below to open a chat with mentors/seniors and get the personal message there.
-
-Just start. 🚀
+*More Info:*
+📍 [pwioi.com](https://www.pwioi.com) | 📍 [pwioi.club](https://pwioi.club)
 """
-
-PERSONAL_DM_TEMPLATE = """Hey {name}!
-
-Hi! I noticed that you’ve recently joined the PWIOI group. I’m your personal mentor, Ravi.
-
-If you need any guidance, have doubts, or would like a referral for a smoother journey and extra discount use coupon- "S0026".
-
-Talk to senoirs/mentors at @Ravi_Soni123 or message me on WhatsApp at 9608710567.
-"""
-
 
 @dataclass(frozen=True)
 class BotConfig:
@@ -115,16 +101,15 @@ def load_config() -> BotConfig:
     )
 
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not update.message:
-        return
+import asyncio
 
-    # Only reply to /start if it's sent in a private DM (not in the group!)
-    if update.message.chat.type != "private":
-        return
-
-    first_name = update.effective_user.first_name if update.effective_user else "there"
-    await update.message.reply_text(PERSONAL_DM_TEMPLATE.format(name=first_name))
+async def delete_message_later(bot, chat_id: int, message_id: int, delay_seconds: int) -> None:
+    await asyncio.sleep(delay_seconds)
+    try:
+        await bot.delete_message(chat_id=chat_id, message_id=message_id)
+        logger.info("Deleted welcome message %s in chat %s", message_id, chat_id)
+    except Exception as e:
+        logger.warning("Failed to delete message: %s", e)
 
 
 async def welcome_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -136,23 +121,20 @@ async def welcome_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE
     if not members:
         return
 
-    bot_username = context.bot.username
-
-    for member in members:
-        display_name = member.first_name or member.full_name or "there"
-        dm_text = PERSONAL_DM_TEMPLATE.format(name=display_name)
-        try:
-            await context.bot.send_message(chat_id=member.id, text=dm_text)
-            logger.info("Sent DM to %s (%s)", member.full_name, member.id)
-        except Forbidden:
-            logger.info("Telegram blocked the DM to %s (%s)", member.full_name, member.id)
-        except TelegramError as exc:
-            logger.warning("Failed to send DM to %s (%s): %s", member.full_name, member.id, exc)
-
-    await message.reply_text(
+    sent_msg = await message.reply_text(
         GROUP_WELCOME_MSG,
         disable_web_page_preview=True,
-        reply_markup=build_private_dm_keyboard(bot_username),
+        parse_mode=ParseMode.MARKDOWN,
+    )
+    
+    # Schedule deletion after 5 minutes (300 seconds)
+    asyncio.create_task(
+        delete_message_later(
+            bot=context.bot,
+            chat_id=sent_msg.chat_id,
+            message_id=sent_msg.message_id,
+            delay_seconds=300
+        )
     )
 
 
@@ -160,19 +142,8 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.error("Unhandled exception while processing an update", exc_info=context.error)
 
 
-def build_private_dm_keyboard(bot_username: str | None) -> InlineKeyboardMarkup | None:
-    if not bot_username:
-        return None
-
-    dm_link = f"https://t.me/{bot_username}?start=welcome"
-    return InlineKeyboardMarkup(
-        [[InlineKeyboardButton("Open Private Chat", url=dm_link)]]
-    )
-
-
 def build_application(config: BotConfig) -> Application:
     application = ApplicationBuilder().token(config.token).build()
-    application.add_handler(CommandHandler("start", start_command))
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_new_members))
     application.add_error_handler(error_handler)
     return application
