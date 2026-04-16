@@ -19,7 +19,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-GROUP_WELCOME_MSG = """*Welcome to PW Institute of Innovation*
+GROUP_WELCOME_MSG = """🚀 Stop scrolling. This could change your path.
+*Welcome to PW Institute of Innovation*
 
 Traditional college ka time gaya. *PW IOI* is new-age learning focused on career, skills, Tech, AI & MBA-level Business/Leadership, not just degrees.
 If you’re into *AI, Tech or Management*, let’s build your future together.
