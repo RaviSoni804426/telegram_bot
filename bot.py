@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.constants import ParseMode
-from telegram.error import NetworkError
+from telegram.error import InvalidToken, NetworkError
 from telegram.ext import Application, ApplicationBuilder, ContextTypes, MessageHandler, filters
 
 load_dotenv()
@@ -179,10 +179,15 @@ def main() -> None:
     config = load_config()
 
     while True:
-        application = build_application(config)
         try:
+            application = build_application(config)
             run_application(application, config)
             break
+        except InvalidToken:
+            logger.error(
+                "Telegram rejected the bot token. Rotate the token in BotFather, update TELEGRAM_TOKEN/BOT_TOKEN/TOKEN in the deployment environment, and redeploy."
+            )
+            raise
         except NetworkError as exc:
             logger.warning(
                 "Telegram network error: %s. Retrying in %s seconds.",
